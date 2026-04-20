@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para ti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilos generales del cuerpo de la página */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            /* Fondo degradado suave en tonos rosados */
+            background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%);
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden; /* Evita el desplazamiento horizontal */
+            color: #4a4a4a;
+        }
+
+        /* --- ANIMACIÓN DE CORAZONES FLOTANTES --- */
+        .hearts-container {
+            position: fixed; /* Se mantiene fijo en la pantalla al hacer scroll */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* No interfiere con los clics en otros elementos */
+            z-index: 1; /* Fondo de la animación */
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -100px; /* Comienza fuera de la pantalla por abajo */
+            color: #ff4d6d;
+            font-size: 24px;
+            animation: float 6s ease-in infinite; /* Animación de flotado */
+            opacity: 0;
+        }
+
+        /* Variaciones de animación y posición para que los corazones no suban al mismo tiempo */
+        .heart:nth-child(1) { left: 10%; animation-duration: 8s; animation-delay: 1s; font-size: 30px; }
+        .heart:nth-child(2) { left: 30%; animation-duration: 5s; animation-delay: 2s; }
+        .heart:nth-child(3) { left: 50%; animation-duration: 7s; animation-delay: 0s; font-size: 40px; }
+        .heart:nth-child(4) { left: 70%; animation-duration: 6s; animation-delay: 3s; }
+        .heart:nth-child(5) { left: 85%; animation-duration: 9s; animation-delay: 1.5s; font-size: 20px; }
+        .heart:nth-child(6) { left: 20%; animation-duration: 7.5s; animation-delay: 4s; }
+
+        /* Definición de la animación 'float' */
+        @keyframes float {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-110vh) scale(1.5); /* Sube hasta salir de la pantalla por arriba */
+                opacity: 0;
+            }
+        }
+
+        /* --- ESTILOS DE LA INTERFAZ DE USUARIO --- */
+
+        /* Reproductor de música minimalista */
+        .music-player {
+            margin-top: 20px;
+            z-index: 20; /* Se asegura de estar sobre los corazones */
+        }
+        .music-btn {
+            background: #d81b60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(216, 27, 96, 0.3);
+            font-family: 'Montserrat', sans-serif;
+            transition: transform 0.2s;
+        }
+        .music-btn:active { transform: scale(0.95); }
+
+        /* Menú de navegación con efecto esmerilado */
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.4);
+            padding: 10px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Para soporte en Safari/iPhone */
+        }
+        .nav-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #d81b60;
+            transition: all 0.3s;
+        }
+        .nav-btn.active {
+            background: #d81b60;
+            color: white;
+        }
+
+        /* Contenedor principal (Tarjeta de Glassmorphism) */
+        .card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 40px;
+            text-align: center;
+            max-width: 700px;
+            width: 90%;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            z-index: 10; /* Se asegura de estar sobre los corazones */
+            margin-bottom: 40px;
+            min-height: 400px;
+        }
+
+        /* Títulos cursivos */
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #d81b60;
+            font-size: 3rem;
+            margin-top: 0;
+        }
+
+        /* Estilo para los contenidos de las pestañas (ocultos por defecto) */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        /* Clase activa para mostrar la pestaña seleccionada */
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Animación de desvanecimiento para las pestañas */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- PESTAÑA "10 COSAS" (Tarjetas 3D) --- */
+        .grid-cosas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 120px;
+            perspective: 1000px; /* Profundidad para el efecto 3D */
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        /* Efecto de giro al pasar el ratón o tocar */
+        .flip-card:hover .flip-card-inner, .flip-card:active .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* Oculta la parte trasera al girar */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .flip-card-front {
+            background-color: #ffb6c1;
+            color: #d81b60;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border: 2px dashed #d81b60;
+        }
+        .flip-card-back {
+            background-color: #d81b60;
+            color: white;
+            transform: rotateY(180deg); /* Volteada por defecto */
+            font-size: 0.9rem;
+        }
+
+        /* --- PESTAÑA "TUS VALES" (Estilo cupones) --- */
+        .vale {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 8px solid #d81b60;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+        }
+        .vale-text h3 {
+            margin: 0 0 5px 0;
+            color: #d81b60;
+            font-size: 1.1rem;
+        }
+        .vale-text p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        /* Botón de reclamar por WhatsApp */
+        .btn-reclamar {
+            background: #25D366; /* Color de WhatsApp */
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(37, 211, 102, 0.4);
+            transition: background 0.3s;
+        }
+        .btn-reclamar:hover {
+            background: #1ebe57;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hearts-container">
+        <div class="heart">❤</div>
+        <div class="heart">❤</div>
+        <div class="heart">❤</div>
+        <div class="heart">❤</div>
+        <div class="heart">❤</div>
+        <div class="heart">❤</div>
+    </div>
+
+    <audio id="miAudio" loop>
+        <source src="music_love.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="music-player">
+        <button class="music-btn" onclick="togglePlay()" id="playBtn">🎵 Reproducir nuestra canción</button>
+    </div>
+
+    <div class="nav-menu">
+        <button class="nav-btn active" onclick="cambiarPestana('inicio')">Inicio</button>
+        <button class="nav-btn" onclick="cambiarPestana('cosas')">10 Cosas</button>
+        <button class="nav-btn" onclick="cambiarPestana('vales')">Tus Vales</button>
+    </div>
+
+    <div class="card">
+        <div id="inicio" class="tab-content active">
+            <h1>¡Feliz Cumpleaños!</h1>
+            <p>He preparado este pequeño rincón digital solo para ti. Quería regalarte algo que no se pueda comprar en una tienda, algo hecho a tu medida.</p>
+            <p>Explora los botones de arriba. Tenemos una canción lista para sonar, algunas confesiones y unos premios que te mereces por ser tan increíble.</p>
+            <p style="font-style: italic; color: #d81b60; font-weight: bold; margin-top: 30px;">Con todo mi amor,<br>Yo</p>
+        </div>
+
+        <div id="cosas" class="tab-content">
+            <h1>10 Cosas que amo de ti</h1>
+            <p style="font-size: 0.9rem; margin-bottom: 20px;">(Toca cada tarjeta para leerla)</p>
+            <div class="grid-cosas">
+                
+                <div class="flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">1</div>
+                        <div class="flip-card-back">Tu sonrisa cuando te emocionas por algo pequeño.</div>
+                    </div>
+                </div>
+
+                <div class="flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">2</div>
+                        <div class="flip-card-back">La forma en la que me apoyas siempre.</div>
+                    </div>
+                </div>
+                
+                </div>
+        </div>
+
+        <div id="vales" class="tab-content">
+            <h1>Tus Vales</h1>
+            <p style="font-size: 0.9rem; margin-bottom: 20px;">Válidos por un año. Úsalos sabiamente.</p>
+            
+            <div class="vale">
+                <div class="vale-text">
+                    <h3>Vale por un abrazo largo</h3>
+                    <p>De esos que reinician la vida.</p>
+                </div>
+                <a href="https://wa.me/51999999999?text=¡Hola!%20Vengo%20a%20reclamar%20mi%20vale%20por%20un%20abrazo%20largo%20🤗" class="btn-reclamar" target="_blank">Reclamar</a>
+            </div>
+
+            <div class="vale">
+                <div class="vale-text">
+                    <h3>Vale por un pollo a la brasa</h3>
+                    <p>Invito yo. Pechuga o pierna, tú mandas.</p>
+                </div>
+                <a href="https://wa.me/51999999999?text=¡Es%20hora!%20Quiero%20reclamar%20mi%20vale%20por%20un%20pollo%20a%20la%20brasa%20🍗" class="btn-reclamar" target="_blank">Reclamar</a>
+            </div>
+            
+            </div>
+    </div>
+
+    <script>
+        // Función para cambiar entre pestañas y actualizar el menú
+        function cambiarPestana(id) {
+            // Ocultar todos los contenidos de pestañas y desactivar botones del menú
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Mostrar el contenido de la pestaña seleccionada
+            document.getElementById(id).classList.add('active');
+            
+            // Activar el botón del menú que se presionó (usa event.currentTarget para mayor precisión)
+            if (event) {
+                event.currentTarget.classList.add('active');
+            }
+        }
+
+        // Lógica del reproductor de música
+        var audio = document.getElementById("miAudio");
+        var btn = document.getElementById("playBtn");
+        var isPlaying = false;
+
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+                btn.innerHTML = "🎵 Reproducir nuestra canción";
+            } else {
+                audio.play().catch(function(error) {
+                    console.log(" Safari/iOS requiere una interacción directa del usuario para reproducir audio:", error);
+                });
+                btn.innerHTML = "⏸ Pausar canción";
+            }
+            isPlaying = !isPlaying;
+        }
+    </script>
+</body>
+</html>
